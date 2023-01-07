@@ -33,6 +33,7 @@ if __name__ == "__main__":
     directory_event_handler.on_deleted = on_deleted
     directory_event_handler.on_modified = on_modified
     directory_event_handler.on_moved = on_moved
+    # directory_event_handler.on_copy = on_moved
 
     path = "./tmp"  # current directory
     go_recursively = True
