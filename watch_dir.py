@@ -1,14 +1,19 @@
 import os
 import os.path
 from os import path
+import get_envrion
 import time
 from watchdog.observers import Observer
 from watchdog.events import PatternMatchingEventHandler
+import shutil
 
 
 def move_files(files, directory_to_move):
     print('Moving files')
     verify_backup_dir(directory_to_move)
+    if verify_backup_dir(directory_to_move):
+        create_backup(files)
+        compress_files()
     pass
 
 
@@ -39,16 +44,31 @@ def compress_files():
 
 def on_created(event):
     print(os.path.basename(event.src_path))
-    print(f"hey, {event.src_path} has been created!")
+    print(f"SOMETHING WAS CREATED, {event.src_path} has been created!")
 
 
 def on_deleted(event):
-    print(f"what the f**k! Someone deleted {event.src_path}!")
+    print(f"ITEMS WHERE DELETED {event.src_path}!")
 
 
 def on_modified(event):
     print(os.path.basename(event.src_path))
-    print(f"hey buddy, {event.src_path} has been modified")
+    # root_path = os.path.dirname(event.src_path)
+    root_path = get_envrion.get_env('DIRECTORY')
+    modified_files = [os.path.basename(event.src_path)]
+    print(f"HEY, {event.src_path} has been MODIFIED")
+    print(root_path)
+    dir_to_move = get_envrion.get_env('DIRECTORY_TO_MOVE')
+    backup_dir = get_envrion.get_env('BACKUP')
+    for file in modified_files:
+        print(f"Moving {file}")
+        try:
+            # create_backup(modified_files)
+            # TODO: Testing shortcut
+            shutil.copy(f"{dir_to_move}/{file}", f"{backup_dir}/{file}")
+            shutil.copy(f"{root_path}{file}", dir_to_move)
+        except Exception as e:
+            print(f"Failed to move {file} or it already has been moved. {e}")
 
 
 def on_moved(event):
@@ -70,7 +90,7 @@ if __name__ == "__main__":
     directory_event_handler.on_moved = on_moved
     # directory_event_handler.on_copy = on_moved
 
-    path = "./staging/non-prod"  # current directory
+    path = "./staging/non-prod/"  # current directory
     go_recursively = True
     my_observer = Observer()
     my_observer.schedule(directory_event_handler, path, recursive=go_recursively)
