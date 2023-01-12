@@ -22,7 +22,9 @@ def verify_backup_dir(folder_path):
         print('Directory already exists')
 
 
-def create_backup(changed_files=[]):
+def create_backup(changed_files=None):
+    if changed_files is None:
+        changed_files = []
     print('Creating backup')
 
     for file in changed_files:
