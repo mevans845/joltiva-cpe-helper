@@ -90,7 +90,7 @@ if __name__ == "__main__":
     directory_event_handler.on_moved = on_moved
     # directory_event_handler.on_copy = on_moved
 
-    path = "./staging/non-prod/"  # current directory
+    path = "./staging/non-prod/"  # get_envrion.get_env("DIRECTORY")  # "./staging/non-prod/"  # current directory
     go_recursively = True
     my_observer = Observer()
     my_observer.schedule(directory_event_handler, path, recursive=go_recursively)
