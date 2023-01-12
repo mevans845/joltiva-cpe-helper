@@ -29,7 +29,7 @@ def create_backup(changed_files=None):
 
     for file in changed_files:
 
-        os.system('cp -r ./staging/non-prod ./non-prod/')
+        os.system(f'cp -r {file} ./non-prod/{file}')
 
 
 def compress_files():
