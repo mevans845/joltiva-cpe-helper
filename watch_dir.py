@@ -1,21 +1,87 @@
 import os
+import os.path
+import get_envrion
 import time
+import shutil
+
 from watchdog.observers import Observer
 from watchdog.events import PatternMatchingEventHandler
 
 
+# def move_files(files, directory_to_move):
+#     print('Moving files')
+#     verify_backup_dir(directory_to_move)
+#     if verify_backup_dir(directory_to_move):
+#         create_backup(files)
+#         compress_files()
+#     pass
+
+# TODO: Add a function to verify the backup directory exists
+def verify_backup_dir(folder_path):
+    backup_name = time.strftime("%Y%m%d")
+    print('Verifying backup directory')
+    if not os.path.isdir(f'{folder_path}'):
+        print('Creating backup directory')
+        os.makedirs(f'{folder_path}{backup_name}')
+    else:
+        # TODO decide if we want to create a new backup directory or not and just overwrite the old one
+        print('Directory already exists')
+
+
+def create_backup(changed_files=None):
+    if changed_files is None:
+        changed_files = []
+    print('Creating backup')
+
+    for file in changed_files:
+        os.system(f'cp -r {file} ./non-prod/{file}')
+
+
+def compress_files():
+    print('Compressing files')
+    os.system('tar -czvf non-prod.tar.gz non-prod')
+
+
 def on_created(event):
     print(os.path.basename(event.src_path))
-    print(f"hey, {event.src_path} has been created!")
+    print(f"SOMETHING WAS CREATED, {event.src_path} has been created!")
 
 
 def on_deleted(event):
-    print(f"what the f**k! Someone deleted {event.src_path}!")
+    print(f"ITEMS WHERE DELETED {event.src_path}!")
 
 
 def on_modified(event):
     print(os.path.basename(event.src_path))
-    print(f"hey buddy, {event.src_path} has been modified")
+    # root_path = os.path.dirname(event.src_path)
+    root_path = get_envrion.get_env('DIRECTORY')
+    modified_files = [os.path.basename(event.src_path)]
+    print(f"HEY, {event.src_path} has been MODIFIED")
+    print(root_path)
+    dir_to_move = get_envrion.get_env('DIRECTORY_TO_MOVE')
+    backup_dir = get_envrion.get_env('BACKUP')
+    for file in modified_files:
+        print(f"Moving {file}")
+        try:
+            # create_backup(modified_files)
+            # TODO: Testing shortcut
+            backup_name = time.strftime("%Y%m%d")
+            # TODO:
+            # print('Verifying backup directory')
+            print(f"backup folder name: {backup_dir}{backup_name}")
+            if not os.path.isdir(f'{backup_dir}{backup_name}'):
+                print('Creating backup directory')
+                os.makedirs(f'{backup_dir}{backup_name}')
+            print(f"backing up existing files")
+            try:
+                # TODO: and Windows support
+                shutil.copy(f"{dir_to_move}{file}", f"{backup_dir}/{backup_name}/{file}")
+            except FileNotFoundError:
+                print(f"File not found: {dir_to_move}{file} is this a possible first deployment?")
+            print("Moving files to destination")
+            shutil.copy(f"{root_path}{file}", dir_to_move)
+        except Exception as e:
+            print(f"Failed to move {file} or it already has been moved. {e}")
 
 
 def on_moved(event):
@@ -24,6 +90,8 @@ def on_moved(event):
 
 if __name__ == "__main__":
     patterns = ["*.py", "*.txt", "*.md", "*.json", "*.bat", "*.sh"]
+
+    # TODO: add .gitignore and .env to patterns
     ignore_patterns = None
     ignore_directories = False
     case_sensitive = True
@@ -35,7 +103,7 @@ if __name__ == "__main__":
     directory_event_handler.on_moved = on_moved
     # directory_event_handler.on_copy = on_moved
 
-    path = "./tmp"  # current directory
+    path = "./staging/non-prod/"  # get_envrion.get_env("DIRECTORY")  # "./staging/non-prod/"  # current directory
     go_recursively = True
     my_observer = Observer()
     my_observer.schedule(directory_event_handler, path, recursive=go_recursively)
