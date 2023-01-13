@@ -1,0 +1,1 @@
+# Example folder structure for local dev
