@@ -8,21 +8,21 @@ from watchdog.events import PatternMatchingEventHandler
 import shutil
 
 
-def move_files(files, directory_to_move):
-    print('Moving files')
-    verify_backup_dir(directory_to_move)
-    if verify_backup_dir(directory_to_move):
-        create_backup(files)
-        compress_files()
-    pass
+# def move_files(files, directory_to_move):
+#     print('Moving files')
+#     verify_backup_dir(directory_to_move)
+#     if verify_backup_dir(directory_to_move):
+#         create_backup(files)
+#         compress_files()
+#     pass
 
-
+# TODO: Add a function to verify the backup directory exists
 def verify_backup_dir(folder_path):
     backup_name = time.strftime("%Y%m%d")
     print('Verifying backup directory')
     if not os.path.isdir(f'{folder_path}'):
         print('Creating backup directory')
-        os.makedirs(f'{folder_path}/{backup_name}')
+        os.makedirs(f'{folder_path}{backup_name}')
     else:
         print('Directory already exists')
 
@@ -65,7 +65,20 @@ def on_modified(event):
         try:
             # create_backup(modified_files)
             # TODO: Testing shortcut
-            shutil.copy(f"{dir_to_move}/{file}", f"{backup_dir}/{file}")
+            backup_name = time.strftime("%Y%m%d")
+            # TODO:
+            # print('Verifying backup directory')
+            print(f"backup folder name: {backup_dir}{backup_name}")
+            if not os.path.isdir(f'{backup_dir}{backup_name}'):
+                print('Creating backup directory')
+                os.makedirs(f'{backup_dir}{backup_name}')
+            print(f"backing up existing files")
+            try:
+                # TODO: and Windows support
+                shutil.copy(f"{dir_to_move}{file}", f"{backup_dir}/{backup_name}/{file}")
+            except FileNotFoundError:
+                print(f"File not found: {dir_to_move}{file} is this a possible first deployment?")
+            print("Moving files to destination")
             shutil.copy(f"{root_path}{file}", dir_to_move)
         except Exception as e:
             print(f"Failed to move {file} or it already has been moved. {e}")
