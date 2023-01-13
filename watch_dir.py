@@ -1,11 +1,11 @@
 import os
 import os.path
-from os import path
 import get_envrion
 import time
+import shutil
+
 from watchdog.observers import Observer
 from watchdog.events import PatternMatchingEventHandler
-import shutil
 
 
 # def move_files(files, directory_to_move):
