@@ -24,6 +24,7 @@ def verify_backup_dir(folder_path):
         print('Creating backup directory')
         os.makedirs(f'{folder_path}{backup_name}')
     else:
+        # TODO decide if we want to create a new backup directory or not and just overwrite the old one
         print('Directory already exists')
 
 
@@ -33,7 +34,6 @@ def create_backup(changed_files=None):
     print('Creating backup')
 
     for file in changed_files:
-
         os.system(f'cp -r {file} ./non-prod/{file}')
 
 
