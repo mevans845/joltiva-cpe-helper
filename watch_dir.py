@@ -11,14 +11,6 @@ from watchdog.events import PatternMatchingEventHandler
 max_tries = 3
 
 
-# def move_files(files, directory_to_move):
-#     print('Moving files')
-#     verify_backup_dir(directory_to_move)
-#     if verify_backup_dir(directory_to_move):
-#         create_backup(files)
-#         compress_files()
-#     pass
-
 # TODO: Add a function to verify the backup directory exists
 def verify_backup_dir(folder_path):
     backup_name = time.strftime("%Y%m%d")
