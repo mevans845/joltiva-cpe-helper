@@ -3,7 +3,8 @@ import os.path
 import get_envrion
 import time
 import shutil
-
+# import subprocess
+from subprocess import Popen, PIPE, STDOUT
 from watchdog.observers import Observer
 from watchdog.events import PatternMatchingEventHandler
 
@@ -40,6 +41,49 @@ def create_backup(changed_files=None):
 def compress_files():
     print('Compressing files')
     os.system('tar -czvf non-prod.tar.gz non-prod')
+
+
+def retry(process, max_tries=3):
+    for i in range(max_tries):
+        try:
+            time.sleep(300)
+            verify_process_not_running(process)
+            break
+        except Exception:
+            print("Unsuccessful after 3 attempts")
+            raise TimeoutError
+
+
+def verify_process_not_running(process_name=get_envrion.get_env("PROCESS_NAME")):
+    """
+
+    :param process_name:
+    :return:
+    """
+    try:
+        program_path = "C:\\WINDOWS\\system32\\WindowsPowerShell\\v1.0\\powershell.exe"
+        process_name = str(process_name)
+
+        p = Popen([f"{program_path}", "-Command",
+                   '&{Get-ScheduledTask -TaskPath \\* | where taskname -eq "WizNonProdAlerts" | select state;}'],
+                  shell=True, stdout=PIPE, stderr=PIPE)
+        output, err = p.communicate()
+        output = output.decode("utf-8")
+        print(output)
+        clean_output = output.split()
+        rc = p.returncode
+        print(f"output: {clean_output[2]}, err: {err}, return_code: {rc}")
+        status = clean_output[2]
+        if status == "Ready":
+            return True
+        else:
+            print(f"The Process is not in a good state and is currently: {status}")
+            # wait 10 min and try again
+            retry(process=process_name)
+    except Exception as e:
+        print(f"Something went wrong: {e}")
+
+
 
 
 def on_created(event):

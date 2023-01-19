@@ -1,5 +1,7 @@
 from unittest import TestCase
 
+import watch_dir
+
 
 class TestWatchDir(TestCase):
     def test_move_files(self):
@@ -24,4 +26,11 @@ class TestWatchDir(TestCase):
         self.fail()
 
     def test_on_moved(self):
+        self.fail()
+
+    def test_verify_process_not_running(self):
+
+        result = watch_dir.verify_process_not_running()
+        print("I'm printing the result")
+        print(result)
         self.fail()
