@@ -75,7 +75,8 @@ def on_modified(event):
             print(f"backing up existing files")
             try:
                 # TODO: and Windows support
-                shutil.copy(f"{dir_to_move}{file}", f"{backup_dir}/{backup_name}/{file}")
+                shutil.copy(f"{dir_to_move}{file}", f"{backup_dir}{backup_name}\{file}")
+                print(f"copied the source {dir_to_move}{file} to {backup_dir}{backup_name}\{file}")
             except FileNotFoundError:
                 print(f"File not found: {dir_to_move}{file} is this a possible first deployment?")
             print("Moving files to destination")
@@ -89,7 +90,7 @@ def on_moved(event):
 
 
 if __name__ == "__main__":
-    patterns = ["*.py", "*.txt", "*.md", "*.json", "*.bat", "*.sh"]
+    patterns = ["*.py", "*.txt", "*.md", "*.json", "*.bat", "*.sh", "*.yml", "*.yaml", "*.ps1", "*.psm1", "*.psd1"]
 
     # TODO: add .gitignore and .env to patterns
     ignore_patterns = None
@@ -103,7 +104,7 @@ if __name__ == "__main__":
     directory_event_handler.on_moved = on_moved
     # directory_event_handler.on_copy = on_moved
 
-    path = "./staging/non-prod/"  # get_envrion.get_env("DIRECTORY")  # "./staging/non-prod/"  # current directory
+    path = get_envrion.get_env("DIRECTORY")  # "./staging/non-prod/"  # current directory
     go_recursively = True
     my_observer = Observer()
     my_observer.schedule(directory_event_handler, path, recursive=go_recursively)
