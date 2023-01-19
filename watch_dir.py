@@ -48,7 +48,7 @@ def compress_files():
 def retry(process, max_tries=3):
     for i in range(max_tries):
         try:
-            time.sleep(50)
+            time.sleep(100)
             verify_process_not_running(process)
             break
         except Exception as e:
