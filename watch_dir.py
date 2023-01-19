@@ -8,6 +8,8 @@ from subprocess import Popen, PIPE, STDOUT
 from watchdog.observers import Observer
 from watchdog.events import PatternMatchingEventHandler
 
+max_tries = 3
+
 
 # def move_files(files, directory_to_move):
 #     print('Moving files')
@@ -46,20 +48,22 @@ def compress_files():
 def retry(process, max_tries=3):
     for i in range(max_tries):
         try:
-            time.sleep(300)
+            time.sleep(50)
             verify_process_not_running(process)
             break
-        except Exception:
-            print("Unsuccessful after 3 attempts")
-            raise TimeoutError
+        except Exception as e:
+            print(f"Unsuccessful after 3 attempts {e}")
+            continue
 
 
-def verify_process_not_running(process_name=get_envrion.get_env("PROCESS_NAME")):
+def verify_process_not_running(process_name=get_envrion.get_env("PROCESS_NAME"), has_retried=False):
     """
 
+    :param has_retried:
     :param process_name:
     :return:
     """
+    environ = str(get_envrion.get_env("PROCESS_NAME"))
     try:
         program_path = "C:\\WINDOWS\\system32\\WindowsPowerShell\\v1.0\\powershell.exe"
         process_name = str(process_name)
@@ -78,12 +82,10 @@ def verify_process_not_running(process_name=get_envrion.get_env("PROCESS_NAME"))
             return True
         else:
             print(f"The Process is not in a good state and is currently: {status}")
-            # wait 10 min and try again
-            retry(process=process_name)
+            return False
+            # TODO: Change retry logic here
     except Exception as e:
         print(f"Something went wrong: {e}")
-
-
 
 
 def on_created(event):
@@ -124,9 +126,15 @@ def on_modified(event):
             except FileNotFoundError:
                 print(f"File not found: {dir_to_move}{file} is this a possible first deployment?")
             print("Moving files to destination")
-            shutil.copy(f"{root_path}{file}", dir_to_move)
+            is_not_running = verify_process_not_running(get_envrion.get_env("PROCESS_NAME"))
+            if is_not_running:
+                shutil.copy(f"{root_path}{file}", dir_to_move)
+            else:
+                print("Process running retrying")
+                retry(get_envrion.get_env("PROCESS_NAME"), 3)
         except Exception as e:
             print(f"Failed to move {file} or it already has been moved. {e}")
+            print("Or the CSPM application is running")
 
 
 def on_moved(event):
