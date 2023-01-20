@@ -1,3 +1,4 @@
+import time
 from unittest import TestCase
 
 import watch_dir
@@ -34,3 +35,8 @@ class TestWatchDir(TestCase):
         print("I'm printing the result")
         print(result)
         self.fail()
+
+    def test_date_time_check(self):
+        result = time.strftime("%Y%m%d%H%M")
+        print(result)
+        self.fail(msg="Testing different formats")

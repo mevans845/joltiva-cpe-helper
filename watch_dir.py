@@ -13,7 +13,7 @@ max_tries = 3
 
 # TODO: Add a function to verify the backup directory exists
 def verify_backup_dir(folder_path):
-    backup_name = time.strftime("%Y%m%d")
+    backup_name = time.strftime("%Y%m%d%H%M")
     print('Verifying backup directory')
     if not os.path.isdir(f'{folder_path}'):
         print('Creating backup directory')
@@ -103,7 +103,7 @@ def on_modified(event):
         try:
             # create_backup(modified_files)
             # TODO: Testing shortcut
-            backup_name = time.strftime("%Y%m%d")
+            backup_name = time.strftime("%Y%m%d%H%M")
             # TODO:
             # print('Verifying backup directory')
             print(f"backup folder name: {backup_dir}{backup_name}")
