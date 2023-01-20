@@ -32,8 +32,11 @@ def create_backup(changed_files=None):
         os.system(f'cp -r {file} ./non-prod/{file}')
 
 
-def compress_files():
+def compress_files(dir_to_compress):
     print('Compressing files')
+    # Screw it easy with powershell call ps script
+    # View scripts/compress_backups.ps1 example
+    # Call .ps1
     os.system('tar -czvf non-prod.tar.gz non-prod')
 
 
